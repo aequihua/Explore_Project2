@@ -15,3 +15,14 @@ SCC <- readRDS("./exdata-data-NEI_data/Source_Classification_Code.rds")
 # which of these four sources have seen decreases in emissions from 1999–2008 for Baltimore City? 
 # Which have seen increases in emissions from 1999–2008? Use the ggplot2 plotting system to make 
 # a plot answer this question.
+library(plyr)
+library(ggplot2)
+
+sumed=ddply(subset(NEI,NEI$fips=="24510"),c("type","year"),function(x) sum(x$Emissions))
+colnames(sumed) = c("Type","Year","TotalEmissions")
+
+png('./plot3.PNG')
+qplot(Year,TotalEmissions,data=sumed,facets=.~Type,
+      ylab="Total Emissions (tons)") + geom_line() +
+  ggtitle("Emissions in Baltimore, MD - Split by Source") + theme_bw()
+dev.off()
