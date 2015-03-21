@@ -22,7 +22,10 @@ sumed=ddply(subset(NEI,NEI$fips=="24510"),c("type","year"),function(x) sum(x$Emi
 colnames(sumed) = c("Type","Year","TotalEmissions")
 
 png('./plot3.PNG')
-qplot(Year,TotalEmissions,data=sumed,facets=.~Type,
-      ylab="Total Emissions (tons)") + geom_line() +
-  ggtitle("Emissions in Baltimore, MD - Split by Source") + theme_bw()
+p = ggplot(data=sumed, aes(x=Year,y=TotalEmissions),ylab="Total Emissions (tons)" ) +
+    geom_line(colour="blue") + ggtitle("Emissions in Baltimore, MD - Split by Source") + 
+    theme_bw() + facet_wrap(~Type, scales="free_y") + geom_point(colour="red", size=2.5) +
+    geom_smooth(method='lm')
+print(p)
+  
 dev.off()

@@ -24,12 +24,27 @@ NEIMotor=subset(NEI, NEI$fips %in% c("24510","06037") & NEI$SCC %in% SCCMotor$SC
 sumed=ddply(NEIMotor,c("fips","year"),function(x) sum(x$Emissions))
 colnames(sumed) = c("County","Year","TotalEmissions")
 
-# Replace the fips number with a readable label
+# Obtain percentage change values
+pchLA = vector(mode="numeric", length=0)
+pchBA = vector(mode="numeric", length=0)
+for (i in 2:nrow(sumed[sumed$County=="06037",])) {
+  pchLA[i] = ((sumed[sumed$County=="06037",]$TotalEmissions[i] - 
+                 sumed[sumed$County=="06037",]$TotalEmissions[i-1]) /
+                sumed[sumed$County=="06037",]$TotalEmissions[i-1]) * 100
+}
+
+for (i in 2:nrow(sumed[sumed$County=="24510",])) {
+  pchBA[i] = ((sumed[sumed$County=="24510",]$TotalEmissions[i] - 
+                 sumed[sumed$County=="24510",]$TotalEmissions[i-1]) /
+                sumed[sumed$County=="24510",]$TotalEmissions[i-1]) * 100
+}
+# Replace the fips number with a more readable label
 sumed$County[sumed$County=="06037"] = "Los Angeles"
 sumed$County[sumed$County=="24510"] = "Baltimore"
 
 png('./plot6.PNG')
-qplot(Year,TotalEmissions,data=sumed, col=County,
-      ylab="Total Emissions (tons)") + geom_line() +
-  ggtitle("Motor Vehicle Emissions - Baltimore vs Los Angeles") + theme_bw()
+qplot(Year,TotalEmissions,data=sumed, 
+      ylab="Total Emissions (tons)") + geom_point(size=3, colour="blue") +
+  ggtitle("Motor Vehicle Emissions - Baltimore vs Los Angeles") + theme_bw() +
+  geom_smooth(method="lm")+facet_wrap(~County, scales="free_y")
 dev.off()
